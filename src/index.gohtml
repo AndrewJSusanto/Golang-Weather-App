@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Weather Go</title>
+        <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                padding: 20px;
+                justify-content: center;
+                background-color: #2b2b2b;
+            }
+            .q {
+                display: flex;
+                flex-direction: column;
+                border: 5px solid black;
+                max-width: 500px;
+                min-width: 500px;
+                padding: 50px;
+                margin: auto;
+                background-color: #A8D4AD;
+            }
+            .q2 {
+                display: table-cell;
+                flex-direction: row;
+                border: 5px solid black;
+                max-width: 200px;
+                height: 150px;
+                padding: 30px;
+                background-color: #FFFFFA;
+                width: 50%;
+            }
+            h1 {
+                color: blue;
+            }
+            p {
+                margin: auto;
+                color: darkslategray;
+            }
+            .q2:hover {background-color: #92B9BD;}
+        </style>
+    </head>
+    
+    <body onload="main()">
+        <div class="q" style="background-color: #FAFAFA; margin-bottom: 20px">
+            <form style="text-align: center;">
+                <label for="query">Input query (<i>latitude, longitude; city name</i>)</label>
+                <input type="text" id="queryInput" name="query">
+                <br>
+                <input type="submit" id="querySubmit" style="max-width: 100px; margin: auto; justify-content: center;" value="Submit Query">
+            </form>
+        </div>
+        <div class="q" style="min-width: 800px; border-spacing: 10px 0;">
+            <div style="display: table-row; width: 100%; margin-left: 10px;">
+                <div class="q2" style="min-width: 300px;">
+                    <p id="queryResults"> 
+                        {{if not .}}
+                            &nbsp;
+                        {{else if eq (printf "%v" .Location.Lat) "0"}}
+                            <p style="text-align: center;">
+                                <b>Awaiting Query Results</b>
+                            </p>
+                        {{else}}
+                            <b>Query Results</b>
+                            <br><br>
+                            <b>City:</b>            &nbsp;    <u>{{.Location.Name}}</u>
+                            <br>
+                            <b>Region:</b>          &nbsp;    <u>{{.Location.Region}}</u>
+                            <br>
+                            <b>Country:</b>         &nbsp;    <u>{{.Location.Country}}</u>
+                            <br><br><br>
+                            <b>Current Time:</b>    &nbsp;    <u>{{.Location.Time}}</u>
+                            <br>
+                            <b>Coordinates:</b>
+                            &nbsp; <u>{{.Location.Lat}} {{.Location.Long}}</u><br>
+                        {{ end }}
+                    </p>
+                </div>
+                {{if not .}}
+                    &nbsp;
+                {{else if eq (printf "%v" .Current.Humidity) "0"}}
+                <div class="q2" style="border: 0px; width: 50%">
+                </div>
+                {{else}}
+                <div class="q2" style="width: 50%">
+                    <p id="queryWeather">
+                        <b>Current Weather</b>
+                        <br><br>
+                        Conditions:         <span style="float: right;">{{.Current.Conditions.Descript}}</span>
+                        <br>
+                        Temperature (C):    <span style="float: right;">{{.Current.TempC}}&deg;</span>
+                        <br><br>
+                        Wind (Deg, Kph):    <span style="float: right;">{{.Current.WindDegree}}&deg; at {{.Current.WindKPH}} kph</span>
+                        <br>
+                        Wind Chill (C):     <span style="float: right;">{{.Current.WindChillC}}&deg;</span>
+                        <br>
+                        Humidity:           <span style="float: right;">{{.Current.Humidity}}%</span>
+                        <br>
+                        Feels Like (C):     <span style="float: right;">{{.Current.FeelsLikeC}}&deg;</span>
+                        <br>
+                    </p>
+                </div>
+                {{end}}
+            </div>
+        </div>
+        <script src="weather.go"></script>
+    </body>
+</html>

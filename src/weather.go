@@ -2,7 +2,6 @@ package main
 
 // API KEY: da79587af3d99005cb7e617471c648d0
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"text/template"
 )
 
 type Response struct {
@@ -59,21 +59,18 @@ type Condition struct {
 	Code     int    `json:"code"`
 }
 
-func main() {
-	const GETREQ = "http://api.weatherapi.com/v1/current.json?key=44bddb1c26774e7882f22134241706&q="
-	var querytext string
-	reader := bufio.NewReader(os.Stdin)
+var temp *template.Template
+var queryText string
 
-	fmt.Println("Please input your query (latitude, longitude; city name)")
+const api_request = "http://api.weatherapi.com/v1/current.json?key=44bddb1c26774e7882f22134241706&q="
 
-	querytext, _ = reader.ReadString('\n') // takes Input from user for query text including spaces until newline
-	querytext = strings.ReplaceAll(strings.TrimSpace(querytext), " ", "")
-	// fmt.Println(GETREQ + querytext)
-	response, err := http.Get(GETREQ + querytext)
+func fetchAPIData(url string) (Response, error) {
+	response, err := http.Get(url)
 	if err != nil {
 		fmt.Print(err)
 		os.Exit(1)
 	}
+	defer response.Body.Close()
 
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
@@ -82,12 +79,41 @@ func main() {
 
 	var responseObject Response
 	json.Unmarshal(responseData, &responseObject)
-	fmt.Println(responseObject.Location.Region)
-	fmt.Println(responseObject.Location.Country)
-	fmt.Println(responseObject.Location.Time)
-	fmt.Printf("Latitude: %f\t\n", responseObject.Location.Lat)
-	fmt.Printf("Longitude: %f\t\n", responseObject.Location.Long)
+	return responseObject, nil
+}
 
-	fmt.Println(responseObject.Current.Conditions.Descript)
+func formHandler(w http.ResponseWriter, req *http.Request) {
+	// want to target id = queryInput with name = query
+	temp = template.Must(template.ParseFiles("index.gohtml"))
+	queryText := req.FormValue("query")
 
+	queryText = strings.ReplaceAll(strings.TrimSpace(queryText), " ", "")
+	if len(queryText) == 0 {
+		log.Println("Empty Query")
+	}
+	data, err := fetchAPIData(api_request + queryText)
+	if err != nil {
+		log.Fatal(err)
+	}
+	temp.Execute(w, data)
+	// fmt.Println(responseObject.Location.Region)
+	// fmt.Println(responseObject.Location.Country)
+	// fmt.Println(responseObject.Location.Time)
+	// fmt.Printf("Latitude: %f\t\n", responseObject.Location.Lat)
+	// fmt.Printf("Longitude: %f\t\n", responseObject.Location.Long)
+
+	// fmt.Println(responseObject.Current.Conditions.Descript)
+}
+
+func main() {
+	//reader := bufio.NewReader(os.Stdin)
+
+	http.HandleFunc("/", formHandler)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("HTTP status 500 - Internal server error: %s", err)
+	}
+
+	//querytext, _ = reader.ReadString('\n') // takes Input from user for query text including spaces until newline
+	// querytext = strings.ReplaceAll(strings.TrimSpace(querytext), " ", "")
+	// fmt.Println(GETREQ + querytext)
 }
