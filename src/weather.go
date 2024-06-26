@@ -79,6 +79,9 @@ func fetchAPIData(url string) (Response, error) {
 
 	var responseObject Response
 	json.Unmarshal(responseData, &responseObject)
+
+	// do something with responseObject that assigns a struct to change visuals for background color after api data is fetched.
+
 	return responseObject, nil
 }
 

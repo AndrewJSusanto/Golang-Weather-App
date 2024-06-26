@@ -4,12 +4,15 @@
         <meta charset="utf-8">
         <title>Weather Go</title>
         <style>
+            html {
+                height: 100%;
+            }
             body {
                 display: flex;
+                height: 100%;
                 flex-direction: column;
-                padding: 20px;
-                justify-content: center;
-                background-color: #2b2b2b;
+                background: #16A6E3;
+                background: linear-gradient(to bottom, #16A6E3 0%, #D6F3CB 80%, #74E762 100%);
             }
             .q {
                 display: flex;
@@ -42,14 +45,15 @@
         </style>
     </head>
     
-    <body onload="main()">
-        <div class="q" style="background-color: #FAFAFA; margin-bottom: 20px">
+    <body id="bg">
+        <div class="q" style="background-color: #FAFAFA; margin-bottom: -50px">
             <form style="text-align: center;">
                 <label for="query">Input query (<i>latitude, longitude; city name</i>)</label>
                 <input type="text" id="queryInput" name="query">
                 <br>
                 <input type="submit" id="querySubmit" style="max-width: 100px; margin: auto; justify-content: center;" value="Submit Query">
             </form>
+            <button type="button" id="testButton">Test</button>
         </div>
         <div class="q" style="min-width: 800px; border-spacing: 10px 0;">
             <div style="display: table-row; width: 100%; margin-left: 10px;">
@@ -80,14 +84,14 @@
                 {{if not .}}
                     &nbsp;
                 {{else if eq (printf "%v" .Current.Humidity) "0"}}
-                <div class="q2" style="border: 0px; width: 50%">
+                <div class="q2" style="background-color: #A8D4AD; border: 0px; width: 50%">
                 </div>
                 {{else}}
                 <div class="q2" style="width: 50%">
                     <p id="queryWeather">
                         <b>Current Weather</b>
                         <br><br>
-                        Conditions:         <span style="float: right;">{{.Current.Conditions.Descript}}</span>
+                        Conditions:         <span id="conditionDescript" style="float: right;">{{.Current.Conditions.Descript}}</span>
                         <br>
                         Temperature (C):    <span style="float: right;">{{.Current.TempC}}&deg;</span>
                         <br><br>
@@ -105,5 +109,12 @@
             </div>
         </div>
         <script src="weather.go"></script>
+        <script>
+            let bg = document.getElementById('bg');
+            let button = document.getElementById('testButton');
+            button.addEventListener('click', function (e) {
+                console.log("wow");
+            })
+        </script>
     </body>
 </html>
